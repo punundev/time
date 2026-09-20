@@ -169,16 +169,15 @@ html, body {
 }
 
 .portrait-warning {
-  display: none;
+  display: none !important;
 }
 
-@media (orientation: portrait) {
-  .portrait-warning {
-    display: flex;
-  }
-  .app-container {
-    display: none;
-  }
+body.is-portrait .portrait-warning {
+  display: flex !important;
+}
+
+body.is-portrait .app-container {
+  display: none !important;
 }
 
 @media (prefers-reduced-motion: reduce) {

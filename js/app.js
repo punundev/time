@@ -7,15 +7,15 @@ class SmartClockApp {
     this.wakeLock = new WakeLockManager(this.settings);
     this.worldClock = new WorldClockService(this.settings);
 
-    this.inactivityTimeout = null;
-    this.inactivityDelay = 5000;
     this.touchStartY = 0;
     this.touchStartX = 0;
+    this.dismissedPortrait = false;
 
     this.initDOM();
     this.initAnalogClock();
     this.bindEvents();
     this.applySettings();
+    this.checkOrientation();
 
     this.clockEngine.subscribe((now, info) => this.onClockTick(now, info));
     this.weatherService.onUpdate((data) => this.renderWeather(data));
@@ -61,7 +61,9 @@ class SmartClockApp {
       toggleModeBtn: document.getElementById("toggleModeBtn"),
       toggleNightBtn: document.getElementById("toggleNightBtn"),
       toggleAmbientBtn: document.getElementById("toggleAmbientBtn"),
-      toggleFullscreenBtn: document.getElementById("toggleFullscreenBtn")
+      toggleFullscreenBtn: document.getElementById("toggleFullscreenBtn"),
+      dismissWarningBtn: document.getElementById("dismissWarningBtn"),
+      portraitWarning: document.getElementById("portraitWarning")
     };
   }
 
@@ -70,6 +72,16 @@ class SmartClockApp {
   }
 
   bindEvents() {
+    window.addEventListener("resize", () => this.checkOrientation());
+    window.addEventListener("orientationchange", () => this.checkOrientation());
+
+    if (this.elements.dismissWarningBtn) {
+      this.elements.dismissWarningBtn.addEventListener("click", () => {
+        this.dismissedPortrait = true;
+        this.checkOrientation();
+      });
+    }
+
     const handleActivity = () => this.resetInactivityTimer();
     window.addEventListener("mousemove", handleActivity);
     window.addEventListener("touchstart", (e) => {
@@ -398,6 +410,15 @@ class SmartClockApp {
     `
       )
       .join("");
+  }
+
+  checkOrientation() {
+    const isPortrait = window.innerHeight > window.innerWidth;
+    if (isPortrait && !this.dismissedPortrait) {
+      document.body.classList.add("is-portrait");
+    } else {
+      document.body.classList.remove("is-portrait");
+    }
   }
 }
 

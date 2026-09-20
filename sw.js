@@ -1,4 +1,4 @@
-const CACHE_NAME = "smart-clock-v1";
+const CACHE_NAME = "smart-clock-v3";
 const ASSETS = [
   "./",
   "./index.html",
@@ -16,8 +16,21 @@ const ASSETS = [
 ];
 
 self.addEventListener("install", (e) => {
+  self.skipWaiting();
   e.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
+  );
+});
+
+self.addEventListener("activate", (e) => {
+  e.waitUntil(
+    caches.keys().then((keys) =>
+      Promise.all(
+        keys.map((key) => {
+          if (key !== CACHE_NAME) return caches.delete(key);
+        })
+      )
+    ).then(() => self.clients.claim())
   );
 });
 
