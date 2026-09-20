@@ -1,5 +1,5 @@
 const DEFAULT_SETTINGS = {
-  clockMode: "hybrid",
+  clockMode: "digital",
   timeFormat: "24h",
   showSeconds: true,
   showDate: true,
@@ -15,8 +15,9 @@ const DEFAULT_SETTINGS = {
   language: "en",
   wallpaperUrl: "",
   digitalStyle: "modern",
+  digitalFontSize: 100,
   analogStyle: "minimal",
-  nightMode: "auto",
+  nightMode: "off",
   ambientMode: false,
   wakeLock: true,
   fullscreen: false,

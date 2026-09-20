@@ -10,6 +10,7 @@ const TRANSLATIONS = {
     showDate: "Show Date",
     digitalStyle: "Digital Style",
     analogStyle: "Analog Style",
+    fontSize: "Digital Font Size",
     colorTheme: "Color Theme",
     accentColor: "Accent Color",
     language: "Language",
@@ -44,6 +45,7 @@ const TRANSLATIONS = {
     showDate: "បង្ហាញថ្ងៃខែ",
     digitalStyle: "រចនាប័ទ្មឌីជីថល",
     analogStyle: "រចនាប័ទ្មទ្រនិច",
+    fontSize: "ទំហំអក្សរឌីជីថល",
     colorTheme: "ពណ៌ប្រធានបទ",
     accentColor: "ពណ៌លេចធ្លោ",
     language: "ភាសា",
@@ -139,7 +141,9 @@ class SmartClockApp {
       portraitWarning: document.getElementById("portraitWarning"),
       wallpaperLayer: document.getElementById("wallpaperLayer"),
       settingWallpaperUrl: document.getElementById("settingWallpaperUrl"),
-      clearWallpaperBtn: document.getElementById("clearWallpaperBtn")
+      clearWallpaperBtn: document.getElementById("clearWallpaperBtn"),
+      settingDigitalFontSize: document.getElementById("settingDigitalFontSize"),
+      fontSizeVal: document.getElementById("fontSizeVal")
     };
   }
 
@@ -240,6 +244,17 @@ class SmartClockApp {
     bindSelect("settingNightMode", "nightMode");
     bindCheck("settingWakeLock", "wakeLock");
 
+    if (this.elements.settingDigitalFontSize) {
+      this.elements.settingDigitalFontSize.addEventListener("input", (e) => {
+        const val = parseInt(e.target.value, 10);
+        s.set("digitalFontSize", val);
+        if (this.elements.fontSizeVal) {
+          this.elements.fontSizeVal.textContent = `${val}%`;
+        }
+        document.documentElement.style.setProperty("--digital-font-scale", val / 100);
+      });
+    }
+
     if (this.elements.settingWallpaperUrl) {
       this.elements.settingWallpaperUrl.addEventListener("change", (e) => {
         s.set("wallpaperUrl", e.target.value.trim());
@@ -270,6 +285,13 @@ class SmartClockApp {
     setVal("settingColorScheme", s.get("colorScheme") || "dark");
     setVal("settingLanguage", s.get("language") || "en");
     setVal("settingWallpaperUrl", s.get("wallpaperUrl") || "");
+
+    const fontSize = s.get("digitalFontSize") || 100;
+    setVal("settingDigitalFontSize", fontSize);
+    if (this.elements.fontSizeVal) {
+      this.elements.fontSizeVal.textContent = `${fontSize}%`;
+    }
+
     setChecked("settingShowWeather", s.get("showWeather"));
     setChecked("settingShowBattery", s.get("showBattery"));
     setChecked("settingShowNetwork", s.get("showNetwork"));
@@ -302,19 +324,14 @@ class SmartClockApp {
   }
 
   handleGesture(e) {
+    if (this.elements.settingsModal.open) return;
     if (!e.changedTouches || e.changedTouches.length === 0) return;
     const endX = e.changedTouches[0].clientX;
     const endY = e.changedTouches[0].clientY;
     const diffX = endX - this.touchStartX;
     const diffY = endY - this.touchStartY;
 
-    if (Math.abs(diffY) > 60 && Math.abs(diffY) > Math.abs(diffX)) {
-      if (diffY < 0) {
-        this.openSettings();
-      } else {
-        this.closeSettings();
-      }
-    } else if (Math.abs(diffX) > 60 && Math.abs(diffX) > Math.abs(diffY)) {
+    if (Math.abs(diffX) > 80 && Math.abs(diffX) > Math.abs(diffY)) {
       this.cycleMode();
     }
   }
@@ -364,6 +381,9 @@ class SmartClockApp {
     document.body.dataset.theme = s.get("theme");
     document.body.dataset.accent = s.get("accent");
     document.body.dataset.colorScheme = s.get("colorScheme") || "dark";
+
+    const fontSize = s.get("digitalFontSize") || 100;
+    document.documentElement.style.setProperty("--digital-font-scale", fontSize / 100);
 
     this.applyLanguage(s.get("language") || "en");
     this.applyWallpaper(s.get("wallpaperUrl") || "");

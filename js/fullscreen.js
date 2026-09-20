@@ -4,6 +4,8 @@ class FullscreenManager {
   }
 
   isSupported() {
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    if (isIOS) return false;
     return !!(
       document.fullscreenEnabled ||
       document.webkitFullscreenEnabled ||
@@ -13,6 +15,9 @@ class FullscreenManager {
   }
 
   isFullscreen() {
+    if (document.body.classList.contains("ios-fullscreen")) {
+      return true;
+    }
     return !!(
       document.fullscreenElement ||
       document.webkitFullscreenElement ||
@@ -30,7 +35,11 @@ class FullscreenManager {
   }
 
   request() {
-    if (!this.isSupported()) return;
+    if (!this.isSupported()) {
+      document.body.classList.add("ios-fullscreen");
+      window.scrollTo(0, 1);
+      return;
+    }
     const req =
       this.element.requestFullscreen ||
       this.element.webkitRequestFullscreen ||
@@ -38,12 +47,18 @@ class FullscreenManager {
       this.element.msRequestFullscreen;
 
     if (req) {
-      req.call(this.element).catch(() => {});
+      req.call(this.element).catch(() => {
+        document.body.classList.add("ios-fullscreen");
+        window.scrollTo(0, 1);
+      });
     }
   }
 
   exit() {
-    if (!this.isFullscreen()) return;
+    if (document.body.classList.contains("ios-fullscreen")) {
+      document.body.classList.remove("ios-fullscreen");
+    }
+    if (!this.isSupported()) return;
     const exit =
       document.exitFullscreen ||
       document.webkitExitFullscreen ||
