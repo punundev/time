@@ -16,6 +16,7 @@ const TRANSLATIONS = {
     language: "Language",
     wallpaperUrl: "Wallpaper Image URL",
     weather: "Weather",
+    weatherLocation: "Weather Location",
     battery: "Battery",
     network: "Network Status",
     timezone: "Timezone Tag",
@@ -51,6 +52,7 @@ const TRANSLATIONS = {
     language: "ភាសា",
     wallpaperUrl: "តំណភ្ជាប់រូបភាពផ្ទៃខាងក្រោយ (URL)",
     weather: "ធាតុអាកាស",
+    weatherLocation: "ទីតាំងធាតុអាកាស",
     battery: "កម្រិតថ្ម",
     network: "ស្ថានភាពបណ្តាញ",
     timezone: "ល្វែងម៉ោង",
@@ -237,7 +239,15 @@ class SmartClockApp {
     bindSelect("settingAccent", "accent");
     bindSelect("settingColorScheme", "colorScheme");
     bindSelect("settingLanguage", "language");
-    bindCheck("settingShowWeather", "showWeather");
+    bindSelect("settingShowWeather", "showWeather");
+    bindSelect("settingWeatherLocation", "weatherLocation");
+    const weatherLocEl = document.getElementById("settingWeatherLocation");
+    if (weatherLocEl) {
+      weatherLocEl.addEventListener("change", (e) => {
+        s.set("weatherLocation", e.target.value);
+        this.weatherService.fetchWeather(true);
+      });
+    }
     bindCheck("settingShowBattery", "showBattery");
     bindCheck("settingShowNetwork", "showNetwork");
     bindCheck("settingShowTimezone", "showTimezone");
@@ -293,6 +303,7 @@ class SmartClockApp {
     }
 
     setChecked("settingShowWeather", s.get("showWeather"));
+    setVal("settingWeatherLocation", s.get("weatherLocation") || "Siem Reap");
     setChecked("settingShowBattery", s.get("showBattery"));
     setChecked("settingShowNetwork", s.get("showNetwork"));
     setChecked("settingShowTimezone", s.get("showTimezone"));
@@ -395,27 +406,27 @@ class SmartClockApp {
 
     if (mode === "ambient") {
       this.elements.digitalContainer.style.display = "flex";
-      this.elements.analogContainer.style.display = "none";
+      this.elements.analogContainer.style.setProperty("display", "none", "important");
       this.elements.worldContainer.style.display = "none";
       this.elements.dateHeader.style.display = "none";
     } else if (mode === "digital") {
       this.elements.digitalContainer.style.display = "flex";
-      this.elements.analogContainer.style.display = "none";
+      this.elements.analogContainer.style.setProperty("display", "none", "important");
       this.elements.worldContainer.style.display = "none";
       this.elements.dateHeader.style.display = s.get("showDate") ? "flex" : "none";
     } else if (mode === "analog") {
       this.elements.digitalContainer.style.display = "none";
-      this.elements.analogContainer.style.display = "flex";
+      this.elements.analogContainer.style.setProperty("display", "flex", "important");
       this.elements.worldContainer.style.display = "none";
       this.elements.dateHeader.style.display = s.get("showDate") ? "flex" : "none";
     } else if (mode === "hybrid") {
       this.elements.digitalContainer.style.display = "flex";
-      this.elements.analogContainer.style.display = "flex";
+      this.elements.analogContainer.style.setProperty("display", "flex", "important");
       this.elements.worldContainer.style.display = "none";
       this.elements.dateHeader.style.display = s.get("showDate") ? "flex" : "none";
     } else if (mode === "dashboard") {
       this.elements.digitalContainer.style.display = "flex";
-      this.elements.analogContainer.style.display = "flex";
+      this.elements.analogContainer.style.setProperty("display", "none", "important");
       this.elements.worldContainer.style.display = "flex";
       this.elements.dateHeader.style.display = s.get("showDate") ? "flex" : "none";
     }

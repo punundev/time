@@ -6,6 +6,7 @@ const DEFAULT_SETTINGS = {
   dateFormat: "full",
   dayCase: "uppercase",
   showWeather: true,
+  weatherLocation: "Siem Reap",
   showBattery: true,
   showNetwork: true,
   showTimezone: false,

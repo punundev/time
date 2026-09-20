@@ -44,6 +44,21 @@ class WeatherService {
     this.listeners.forEach((fn) => fn(this.data));
   }
 
+  getCoordinates() {
+    const loc = this.settings.get("weatherLocation") || "Siem Reap";
+    const locationsMap = {
+      "Siem Reap": { lat: 13.3633, lon: 103.8564, name: "Siem Reap" },
+      "Phnom Penh": { lat: 11.5564, lon: 104.9282, name: "Phnom Penh" },
+      "Bangkok": { lat: 13.7563, lon: 100.5018, name: "Bangkok" },
+      "Tokyo": { lat: 35.6762, lon: 139.6503, name: "Tokyo" },
+      "Singapore": { lat: 1.3521, lon: 103.8198, name: "Singapore" },
+      "London": { lat: 51.5074, lon: -0.1278, name: "London" },
+      "New York": { lat: 40.7128, lon: -74.0060, name: "New York" }
+    };
+
+    return locationsMap[loc] || locationsMap["Siem Reap"];
+  }
+
   async fetchWeather(force = false) {
     if (!this.settings.get("showWeather")) return;
     if (!navigator.onLine) {
@@ -56,23 +71,24 @@ class WeatherService {
       return;
     }
 
-    let lat = 13.3633;
-    let lon = 103.8564;
-    let locationName = "Siem Reap";
+    const selectedLoc = this.settings.get("weatherLocation") || "Siem Reap";
+    let coords = this.getCoordinates();
 
-    if ("geolocation" in navigator) {
+    if (selectedLoc === "auto" && "geolocation" in navigator) {
       try {
         const pos = await new Promise((resolve, reject) => {
           navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 });
         });
-        lat = pos.coords.latitude;
-        lon = pos.coords.longitude;
-        locationName = "Local";
+        coords = {
+          lat: pos.coords.latitude,
+          lon: pos.coords.longitude,
+          name: "Local GPS"
+        };
       } catch (e) {}
     }
 
     try {
-      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=relativehumidity_2m`;
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}&current_weather=true&hourly=relativehumidity_2m`;
       const res = await fetch(url);
       if (!res.ok) throw new Error("Weather fetch failed");
       const json = await res.json();
@@ -86,7 +102,7 @@ class WeatherService {
         temp: Math.round(current.temperature),
         condition: condition,
         icon: icon,
-        location: locationName,
+        location: coords.name,
         wind: current.windspeed,
         unit: "°C"
       };

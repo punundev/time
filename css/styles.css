@@ -119,31 +119,45 @@ html, body {
   z-index: 1;
 }
 
+#digitalClockContainer {
+  color: var(--accent-color);
+  transition: color 0.3s ease;
+}
+
 .tabular-nums {
   font-variant-numeric: tabular-nums;
 }
 
-.font-style-minimal {
+.font-style-minimal,
+.font-style-minimal .time-display-huge,
+.font-style-minimal .time-display-medium {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  font-weight: 300;
+  font-weight: 200 !important;
+  letter-spacing: 0.04em;
 }
 
-.font-style-modern {
+.font-style-modern,
+.font-style-modern .time-display-huge,
+.font-style-modern .time-display-medium {
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
-  font-weight: 600;
-  letter-spacing: -0.02em;
+  font-weight: 600 !important;
+  letter-spacing: -0.03em;
 }
 
-.font-style-thin {
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-  font-weight: 100;
-  letter-spacing: 0.05em;
+.font-style-thin,
+.font-style-thin .time-display-huge,
+.font-style-thin .time-display-medium {
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+  font-weight: 100 !important;
+  letter-spacing: 0.1em;
 }
 
-.font-style-bold {
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-  font-weight: 800;
-  letter-spacing: -0.04em;
+.font-style-bold,
+.font-style-bold .time-display-huge,
+.font-style-bold .time-display-medium {
+  font-family: -apple-system, BlinkMacSystemFont, "Arial Black", sans-serif;
+  font-weight: 900 !important;
+  letter-spacing: -0.05em;
 }
 
 .font-style-matrix {
@@ -163,6 +177,8 @@ html, body {
 
 .font-style-matrix .time-display-huge,
 .font-style-matrix .time-display-medium {
+  font-family: 'Share Tech Mono', 'Courier New', Courier, monospace;
+  font-weight: 700 !important;
   color: #00ff41 !important;
   text-shadow: 0 0 10px rgba(0, 255, 65, 0.9), 0 0 22px rgba(0, 255, 65, 0.6);
 }
