@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full w-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#09090b">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Smart Clock</title>
+
+  <link rel="manifest" href="manifest.webmanifest">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="h-full w-full overflow-hidden select-none bg-black text-white">
+
+  <div id="portraitWarning" class="portrait-warning fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/95 p-6 text-center">
+    <div class="mb-4 text-5xl">📱🔄</div>
+    <h2 class="text-xl font-bold text-white mb-2">Rotate Your Device</h2>
+    <p class="text-sm text-gray-400">Smart Clock is optimized for iPhone landscape orientation.</p>
+  </div>
+
+  <main id="appContainer" class="app-container relative">
+    <header class="flex items-center justify-between w-full h-10 z-10">
+      <div id="dateHeader" class="flex flex-col justify-center">
+        <span id="weekdayEl" class="text-xs font-bold tracking-widest text-zinc-400 uppercase">--</span>
+        <span id="dateEl" class="text-sm font-medium text-zinc-200">--</span>
+      </div>
+
+      <div class="flex items-center space-x-4">
+        <div id="weatherContainer" class="hidden items-center space-x-2 text-xs text-zinc-300 glass-panel px-2.5 py-1 rounded-full">
+          <span id="weatherIcon">☀️</span>
+          <span id="weatherTemp" class="font-semibold">--°C</span>
+          <span id="weatherCond" class="hidden sm:inline text-zinc-400 text-[10px]">--</span>
+        </div>
+
+        <div id="batteryContainer" class="hidden items-center space-x-1 text-xs text-zinc-300">
+          <span id="batteryIcon">🔋</span>
+          <span id="batteryLevel">--%</span>
+        </div>
+
+        <div id="networkContainer" class="hidden items-center text-xs">
+          <span id="networkStatus" class="w-2 h-2 rounded-full bg-emerald-500"></span>
+        </div>
+      </div>
+    </header>
+
+    <section id="mainClockArea" class="flex-1 flex items-center justify-center w-full relative">
+      <div id="digitalClockContainer" class="flex flex-col items-center justify-center text-center transition-all duration-300">
+        <div class="flex items-baseline justify-center font-style-modern tabular-nums">
+          <span id="hoursEl" class="time-display-huge">10</span>
+          <span class="time-display-huge opacity-80 animate-pulse mx-1">:</span>
+          <span id="minutesEl" class="time-display-huge">42</span>
+          <div id="secondsWrapper" class="flex items-baseline ml-2">
+            <span class="time-display-medium opacity-60">:</span>
+            <span id="secondsEl" class="time-display-medium opacity-80">36</span>
+          </div>
+          <span id="ampmEl" class="text-lg font-semibold ml-3 text-zinc-400 self-end mb-3">PM</span>
+        </div>
+        <div id="timezoneEl" class="hidden text-xs text-zinc-400 mt-1 uppercase tracking-wider">GMT+7</div>
+      </div>
+
+      <div id="analogClockContainer" class="hidden w-44 h-44 items-center justify-center p-2"></div>
+
+      <div id="worldClockContainer" class="hidden flex-col space-y-2 ml-6 text-xs border-l border-zinc-800 pl-4 max-h-48 overflow-y-auto">
+        <div class="text-[10px] uppercase font-bold text-zinc-500 tracking-wider mb-1">World Clock</div>
+        <div id="worldClockList" class="flex flex-col space-y-1.5"></div>
+      </div>
+    </section>
+
+    <div id="controlsOverlay" class="controls-overlay absolute bottom-4 left-0 right-0 flex items-center justify-center z-20 px-4">
+      <div class="glass-panel flex items-center space-x-2 px-3 py-1.5 rounded-full shadow-2xl">
+        <button id="toggleModeBtn" class="p-2 text-zinc-300 hover:text-white rounded-full transition" aria-label="Change Mode">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <button id="toggleNightBtn" class="p-2 text-zinc-300 hover:text-white rounded-full transition" aria-label="Toggle Night Mode">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+        </button>
+        <button id="toggleAmbientBtn" class="p-2 text-zinc-300 hover:text-white rounded-full transition" aria-label="Toggle Ambient Mode">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+        </button>
+        <button id="toggleFullscreenBtn" class="p-2 text-zinc-300 hover:text-white rounded-full transition" aria-label="Toggle Fullscreen">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
+        </button>
+        <div class="h-4 w-[1px] bg-zinc-700 mx-1"></div>
+        <button id="openSettingsBtn" class="p-2 text-zinc-300 hover:text-white rounded-full transition" aria-label="Open Settings">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <dialog id="settingsModal" class="bg-transparent backdrop:bg-black/80 m-0 p-0 w-full h-full max-w-none max-h-none border-none overflow-hidden">
+    <div class="flex items-center justify-center w-full h-full p-4">
+      <div class="glass-panel w-full max-w-lg max-h-[90vh] flex flex-col rounded-2xl overflow-hidden shadow-2xl border border-zinc-800">
+        <header class="flex items-center justify-between px-5 py-3 border-b border-zinc-800">
+          <h3 class="text-sm font-bold text-white uppercase tracking-wider">Clock Settings</h3>
+          <button id="closeSettingsBtn" class="p-1 text-zinc-400 hover:text-white rounded-lg" aria-label="Close Settings">✕</button>
+        </header>
+        <div class="flex-1 overflow-y-auto p-5 space-y-6 text-xs text-zinc-300">
+          
+          <section class="space-y-3">
+            <h4 class="text-[11px] font-bold uppercase tracking-wider text-zinc-500">Clock Layout & Format</h4>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block mb-1 text-zinc-400">Clock Mode</label>
+                <select id="settingClockMode" class="w-full bg-zinc-900 border border-zinc-700 rounded-lg p-2 text-white">
+                  <option value="digital">Digital Only</option>
+                  <option value="analog">Analog Only</option>
+                  <option value="hybrid">Hybrid (Digital + Analog)</option>
+                  <option value="dashboard">Dashboard</option>
+                  <option value="ambient">Ambient</option>
+                </select>
+              </div>
+              <div>
+                <label class="block mb-1 text-zinc-400">Time Format</label>
+                <select id="settingTimeFormat" class="w-full bg-zinc-900 border border-zinc-700 rounded-lg p-2 text-white">
+                  <option value="24h">24-Hour</option>
+                  <option value="12h">12-Hour</option>
+                </select>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3 pt-1">
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="checkbox" id="settingShowSeconds" class="rounded bg-zinc-900 border-zinc-700 text-blue-500">
+                <span>Show Seconds</span>
+              </label>
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="checkbox" id="settingShowDate" class="rounded bg-zinc-900 border-zinc-700 text-blue-500">
+                <span>Show Date</span>
+              </label>
+            </div>
+          </section>
+
+          <section class="space-y-3 border-t border-zinc-800 pt-4">
+            <h4 class="text-[11px] font-bold uppercase tracking-wider text-zinc-500">Styles & Themes</h4>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block mb-1 text-zinc-400">Digital Style</label>
+                <select id="settingDigitalStyle" class="w-full bg-zinc-900 border border-zinc-700 rounded-lg p-2 text-white">
+                  <option value="modern">Modern</option>
+                  <option value="minimal">Minimal</option>
+                  <option value="thin">Thin</option>
+                  <option value="bold">Bold</option>
+                  <option value="matrix">Matrix Tech</option>
+                </select>
+              </div>
+              <div>
+                <label class="block mb-1 text-zinc-400">Analog Style</label>
+                <select id="settingAnalogStyle" class="w-full bg-zinc-900 border border-zinc-700 rounded-lg p-2 text-white">
+                  <option value="minimal">Minimal</option>
+                  <option value="classic">Classic (12,3,6,9)</option>
+                  <option value="full">Full Numbers</option>
+                </select>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3 pt-1">
+              <div>
+                <label class="block mb-1 text-zinc-400">Color Theme</label>
+                <select id="settingTheme" class="w-full bg-zinc-900 border border-zinc-700 rounded-lg p-2 text-white">
+                  <option value="midnight">Midnight</option>
+                  <option value="graphite">Graphite</option>
+                  <option value="oled">OLED Black</option>
+                  <option value="arctic">Arctic</option>
+                  <option value="aurora">Aurora</option>
+                  <option value="minimal-white">Minimal White</option>
+                </select>
+              </div>
+              <div>
+                <label class="block mb-1 text-zinc-400">Accent Color</label>
+                <select id="settingAccent" class="w-full bg-zinc-900 border border-zinc-700 rounded-lg p-2 text-white">
+                  <option value="white">White</option>
+                  <option value="blue">Blue</option>
+                  <option value="cyan">Cyan</option>
+                  <option value="green">Green</option>
+                  <option value="purple">Purple</option>
+                  <option value="orange">Orange</option>
+                </select>
+              </div>
+            </div>
+          </section>
+
+          <section class="space-y-3 border-t border-zinc-800 pt-4">
+            <h4 class="text-[11px] font-bold uppercase tracking-wider text-zinc-500">Widgets & Data</h4>
+            <div class="grid grid-cols-2 gap-3">
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="checkbox" id="settingShowWeather" class="rounded bg-zinc-900 border-zinc-700 text-blue-500">
+                <span>Weather</span>
+              </label>
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="checkbox" id="settingShowBattery" class="rounded bg-zinc-900 border-zinc-700 text-blue-500">
+                <span>Battery</span>
+              </label>
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="checkbox" id="settingShowNetwork" class="rounded bg-zinc-900 border-zinc-700 text-blue-500">
+                <span>Network Status</span>
+              </label>
+              <label class="flex items-center space-x-2 cursor-pointer">
+                <input type="checkbox" id="settingShowTimezone" class="rounded bg-zinc-900 border-zinc-700 text-blue-500">
+                <span>Timezone Tag</span>
+              </label>
+            </div>
+          </section>
+
+          <section class="space-y-3 border-t border-zinc-800 pt-4">
+            <h4 class="text-[11px] font-bold uppercase tracking-wider text-zinc-500">Behavior & Power</h4>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block mb-1 text-zinc-400">Night Mode</label>
+                <select id="settingNightMode" class="w-full bg-zinc-900 border border-zinc-700 rounded-lg p-2 text-white">
+                  <option value="auto">Auto (22:00 - 07:00)</option>
+                  <option value="on">Always On</option>
+                  <option value="off">Off</option>
+                </select>
+              </div>
+              <div class="flex flex-col justify-end">
+                <label class="flex items-center space-x-2 cursor-pointer mb-2">
+                  <input type="checkbox" id="settingWakeLock" class="rounded bg-zinc-900 border-zinc-700 text-blue-500">
+                  <span>Keep Screen Awake</span>
+                </label>
+              </div>
+            </div>
+          </section>
+
+          <div class="border-t border-zinc-800 pt-4 flex justify-between items-center">
+            <button id="resetSettingsBtn" class="px-3 py-1.5 bg-red-950/40 text-red-400 border border-red-900/50 rounded-lg hover:bg-red-900/50 transition">Reset All Settings</button>
+            <button id="saveSettingsCloseBtn" class="px-4 py-1.5 bg-white text-black font-semibold rounded-lg hover:bg-zinc-200 transition">Done</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="js/settings.js"></script>
+  <script src="js/clock.js"></script>
+  <script src="js/analog-clock.js"></script>
+  <script src="js/weather.js"></script>
+  <script src="js/device.js"></script>
+  <script src="js/fullscreen.js"></script>
+  <script src="js/wake-lock.js"></script>
+  <script src="js/world-clock.js"></script>
+  <script src="js/app.js"></script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(function() {});
+    }
+  </script>
+</body>
+</html>
