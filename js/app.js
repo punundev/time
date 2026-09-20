@@ -1,3 +1,74 @@
+const TRANSLATIONS = {
+  en: {
+    rotateTitle: "Rotate Your Device",
+    rotateDesc: "Smart Clock is optimized for landscape orientation.",
+    continuePortrait: "Continue in Portrait Anyway",
+    settingsTitle: "Clock Settings",
+    clockMode: "Clock Mode",
+    timeFormat: "Time Format",
+    showSeconds: "Show Seconds",
+    showDate: "Show Date",
+    digitalStyle: "Digital Style",
+    analogStyle: "Analog Style",
+    colorTheme: "Color Theme",
+    accentColor: "Accent Color",
+    language: "Language",
+    wallpaperUrl: "Wallpaper Image URL",
+    weather: "Weather",
+    battery: "Battery",
+    network: "Network Status",
+    timezone: "Timezone Tag",
+    nightMode: "Night Mode",
+    keepAwake: "Keep Screen Awake",
+    resetSettings: "Reset All Settings",
+    done: "Done",
+    digitalOnly: "Digital Only",
+    analogOnly: "Analog Only",
+    hybrid: "Hybrid (Digital + Analog)",
+    dashboard: "Dashboard",
+    ambient: "Ambient",
+    h24: "24-Hour",
+    h12: "12-Hour",
+    auto: "Auto (22:00 - 07:00)",
+    on: "Always On",
+    off: "Off"
+  },
+  kh: {
+    rotateTitle: "សូមបង្វិលឧបករណ៍របស់អ្នក",
+    rotateDesc: "នាឡិកាឆ្លាតវៃត្រូវបានបង្កើតឡើងយ៉ាងល្អឥតខ្ចោះសម្រាប់ទម្រង់ផ្ដេក។",
+    continuePortrait: "បន្តប្រើក្នុងទម្រង់ឈរ",
+    settingsTitle: "ការកំណត់នាឡិកា",
+    clockMode: "ទម្រង់នាឡិកា",
+    timeFormat: "ទម្រង់ម៉ោង",
+    showSeconds: "បង្ហាញវិនាទី",
+    showDate: "បង្ហាញថ្ងៃខែ",
+    digitalStyle: "រចនាប័ទ្មឌីជីថល",
+    analogStyle: "រចនាប័ទ្មទ្រនិច",
+    colorTheme: "ពណ៌ប្រធានបទ",
+    accentColor: "ពណ៌លេចធ្លោ",
+    language: "ភាសា",
+    wallpaperUrl: "តំណភ្ជាប់រូបភាពផ្ទៃខាងក្រោយ (URL)",
+    weather: "ធាតុអាកាស",
+    battery: "កម្រិតថ្ម",
+    network: "ស្ថានភាពបណ្តាញ",
+    timezone: "ល្វែងម៉ោង",
+    nightMode: "របៀបយប់",
+    keepAwake: "រក្សាអេក្រង់ឱ្យភ្លឺ",
+    resetSettings: "កំណត់ឡើងវិញ",
+    done: "រួចរាល់",
+    digitalOnly: "ឌីជីថលប៉ុណ្ណោះ",
+    analogOnly: "ទ្រនិចប៉ុណ្ណោះ",
+    hybrid: "ចម្រុះ (ឌីជីថល + ទ្រនិច)",
+    dashboard: "ផ្ទាំងព័ត៌មាន",
+    ambient: "អប្បបរមា",
+    h24: "២៤ ម៉ោង",
+    h12: "១២ ម៉ោង",
+    auto: "ស្វ័យប្រវត្តិ (22:00 - 07:00)",
+    on: "បើករហូត",
+    off: "បិទ"
+  }
+};
+
 class SmartClockApp {
   constructor() {
     this.settings = window.settingsManager;
@@ -7,6 +78,8 @@ class SmartClockApp {
     this.wakeLock = new WakeLockManager(this.settings);
     this.worldClock = new WorldClockService(this.settings);
 
+    this.inactivityTimeout = null;
+    this.inactivityDelay = 5000;
     this.touchStartY = 0;
     this.touchStartX = 0;
     this.dismissedPortrait = false;
@@ -50,7 +123,7 @@ class SmartClockApp {
       batteryIcon: document.getElementById("batteryIcon"),
       batteryLevel: document.getElementById("batteryLevel"),
       networkContainer: document.getElementById("networkContainer"),
-      networkStatus: document.getElementById("networkStatus"),
+      networkStatusIcon: document.getElementById("networkStatusIcon"),
       timezoneEl: document.getElementById("timezoneEl"),
       controlsOverlay: document.getElementById("controlsOverlay"),
       settingsModal: document.getElementById("settingsModal"),
@@ -63,7 +136,10 @@ class SmartClockApp {
       toggleAmbientBtn: document.getElementById("toggleAmbientBtn"),
       toggleFullscreenBtn: document.getElementById("toggleFullscreenBtn"),
       dismissWarningBtn: document.getElementById("dismissWarningBtn"),
-      portraitWarning: document.getElementById("portraitWarning")
+      portraitWarning: document.getElementById("portraitWarning"),
+      wallpaperLayer: document.getElementById("wallpaperLayer"),
+      settingWallpaperUrl: document.getElementById("settingWallpaperUrl"),
+      clearWallpaperBtn: document.getElementById("clearWallpaperBtn")
     };
   }
 
@@ -104,6 +180,14 @@ class SmartClockApp {
         this.closeSettings();
       }
     });
+
+    if (this.elements.clearWallpaperBtn) {
+      this.elements.clearWallpaperBtn.addEventListener("click", () => {
+        this.settings.set("wallpaperUrl", "");
+        this.elements.settingWallpaperUrl.value = "";
+        this.applyWallpaper("");
+      });
+    }
 
     this.elements.toggleModeBtn.addEventListener("click", () => this.cycleMode());
     this.elements.toggleNightBtn.addEventListener("click", () => {
@@ -147,12 +231,21 @@ class SmartClockApp {
     bindSelect("settingAnalogStyle", "analogStyle");
     bindSelect("settingTheme", "theme");
     bindSelect("settingAccent", "accent");
+    bindSelect("settingColorScheme", "colorScheme");
+    bindSelect("settingLanguage", "language");
     bindCheck("settingShowWeather", "showWeather");
     bindCheck("settingShowBattery", "showBattery");
     bindCheck("settingShowNetwork", "showNetwork");
     bindCheck("settingShowTimezone", "showTimezone");
     bindSelect("settingNightMode", "nightMode");
     bindCheck("settingWakeLock", "wakeLock");
+
+    if (this.elements.settingWallpaperUrl) {
+      this.elements.settingWallpaperUrl.addEventListener("change", (e) => {
+        s.set("wallpaperUrl", e.target.value.trim());
+        this.applyWallpaper(e.target.value.trim());
+      });
+    }
   }
 
   syncSettingsUI() {
@@ -174,6 +267,9 @@ class SmartClockApp {
     setVal("settingAnalogStyle", s.get("analogStyle"));
     setVal("settingTheme", s.get("theme"));
     setVal("settingAccent", s.get("accent"));
+    setVal("settingColorScheme", s.get("colorScheme") || "dark");
+    setVal("settingLanguage", s.get("language") || "en");
+    setVal("settingWallpaperUrl", s.get("wallpaperUrl") || "");
     setChecked("settingShowWeather", s.get("showWeather"));
     setChecked("settingShowBattery", s.get("showBattery"));
     setChecked("settingShowNetwork", s.get("showNetwork"));
@@ -267,6 +363,10 @@ class SmartClockApp {
     const s = this.settings;
     document.body.dataset.theme = s.get("theme");
     document.body.dataset.accent = s.get("accent");
+    document.body.dataset.colorScheme = s.get("colorScheme") || "dark";
+
+    this.applyLanguage(s.get("language") || "en");
+    this.applyWallpaper(s.get("wallpaperUrl") || "");
 
     const digitalStyle = s.get("digitalStyle") || "modern";
     this.elements.digitalContainer.className = `flex flex-col items-center justify-center text-center transition-all duration-300 font-style-${digitalStyle}`;
@@ -310,6 +410,26 @@ class SmartClockApp {
     this.evaluateNightMode();
   }
 
+  applyLanguage(lang) {
+    const dict = TRANSLATIONS[lang] || TRANSLATIONS.en;
+    document.querySelectorAll("[data-i18n]").forEach((el) => {
+      const key = el.getAttribute("data-i18n");
+      if (dict[key]) {
+        el.textContent = dict[key];
+      }
+    });
+  }
+
+  applyWallpaper(url) {
+    if (url) {
+      this.elements.wallpaperLayer.style.backgroundImage = `url('${url}')`;
+      this.elements.wallpaperLayer.classList.remove("hidden");
+    } else {
+      this.elements.wallpaperLayer.classList.add("hidden");
+      this.elements.wallpaperLayer.style.backgroundImage = "none";
+    }
+  }
+
   evaluateNightMode() {
     const nm = this.settings.get("nightMode");
     const isAmbient = this.settings.get("ambientMode");
@@ -347,7 +467,7 @@ class SmartClockApp {
       this.elements.secondsWrapper.style.display = "none";
     }
 
-    if (info.dayChanged || this.elements.dateEl.textContent === "--") {
+    if (info.dayChanged || this.elements.dateEl.textContent === "--" || info.secondChanged) {
       const dateFormatted = ClockEngine.formatDate(now, this.settings.settings);
       this.elements.weekdayEl.textContent = dateFormatted.weekday;
       this.elements.dateEl.textContent = dateFormatted.dateStr;
@@ -366,23 +486,25 @@ class SmartClockApp {
       return;
     }
     this.elements.weatherContainer.style.display = "flex";
-    this.elements.weatherIcon.textContent = data.icon || "☀️";
-    this.elements.weatherTemp.textContent = `${data.temp}${data.unit}`;
+    this.elements.weatherIcon.innerHTML = data.icon || '<i class="fa-solid fa-sun text-amber-400"></i>';
+    const tempStr = this.settings.get("language") === "kh" ? ClockEngine.toKhmerDigits(data.temp) : data.temp;
+    this.elements.weatherTemp.textContent = `${tempStr}${data.unit}`;
     this.elements.weatherCond.textContent = `${data.condition} • ${data.location}`;
   }
 
   renderDevice(data) {
     if (this.settings.get("showBattery") && data.batterySupported) {
       this.elements.batteryContainer.style.display = "flex";
-      this.elements.batteryLevel.textContent = `${data.batteryLevel}%`;
-      this.elements.batteryIcon.textContent = data.isCharging ? "⚡" : "🔋";
+      const levelStr = this.settings.get("language") === "kh" ? ClockEngine.toKhmerDigits(data.batteryLevel) : data.batteryLevel;
+      this.elements.batteryLevel.textContent = `${levelStr}%`;
+      this.elements.batteryIcon.innerHTML = DeviceService.getBatteryIcon(data.batteryLevel, data.isCharging);
     } else {
       this.elements.batteryContainer.style.display = "none";
     }
 
     if (this.settings.get("showNetwork")) {
       this.elements.networkContainer.style.display = "flex";
-      this.elements.networkStatus.className = `w-2 h-2 rounded-full ${data.online ? "bg-emerald-500" : "bg-red-500"}`;
+      this.elements.networkStatusIcon.className = `mr-1 ${data.online ? "text-emerald-400" : "text-red-500"}`;
     } else {
       this.elements.networkContainer.style.display = "none";
     }
@@ -397,13 +519,14 @@ class SmartClockApp {
 
   renderWorldClocks(now) {
     const list = this.worldClock.getClocks(now);
+    const isKh = this.settings.get("language") === "kh";
     this.elements.worldList.innerHTML = list
       .map(
         (item) => `
       <div class="flex items-center justify-between space-x-3 text-zinc-300">
         <span class="font-medium text-zinc-400">${item.name}</span>
         <div class="flex items-center space-x-1.5 font-semibold tabular-nums">
-          <span>${item.time}</span>
+          <span>${isKh ? ClockEngine.toKhmerDigits(item.time) : item.time}</span>
           ${item.dayDiff ? `<span class="text-[9px] text-amber-500 bg-amber-950/60 px-1 rounded">${item.dayDiff}</span>` : ""}
         </div>
       </div>

@@ -99,14 +99,14 @@ class WeatherService {
   }
 
   getWeatherIcon(code) {
-    if (code === 0) return "☀️";
-    if (code >= 1 && code <= 3) return "⛅";
-    if (code >= 45 && code <= 48) return "🌫️";
-    if (code >= 51 && code <= 67) return "🌧️";
-    if (code >= 71 && code <= 77) return "❄️";
-    if (code >= 80 && code <= 82) return "🌧️";
-    if (code >= 95 && code <= 99) return "⛈️";
-    return "🌡️";
+    if (code === 0) return '<i class="fa-solid fa-sun text-amber-400"></i>';
+    if (code >= 1 && code <= 3) return '<i class="fa-solid fa-cloud-sun text-yellow-300"></i>';
+    if (code >= 45 && code <= 48) return '<i class="fa-solid fa-smog text-gray-400"></i>';
+    if (code >= 51 && code <= 67) return '<i class="fa-solid fa-cloud-rain text-blue-400"></i>';
+    if (code >= 71 && code <= 77) return '<i class="fa-solid fa-snowflake text-cyan-200"></i>';
+    if (code >= 80 && code <= 82) return '<i class="fa-solid fa-cloud-showers-heavy text-blue-300"></i>';
+    if (code >= 95 && code <= 99) return '<i class="fa-solid fa-cloud-bolt text-yellow-500"></i>';
+    return '<i class="fa-solid fa-temperature-half text-amber-500"></i>';
   }
 
   getWeatherCondition(code) {

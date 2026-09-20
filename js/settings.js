@@ -11,6 +11,9 @@ const DEFAULT_SETTINGS = {
   showTimezone: false,
   theme: "midnight",
   accent: "white",
+  colorScheme: "dark",
+  language: "en",
+  wallpaperUrl: "",
   digitalStyle: "modern",
   analogStyle: "minimal",
   nightMode: "auto",
@@ -30,8 +33,14 @@ class SettingsManager {
   load() {
     try {
       const raw = localStorage.getItem(this.storageKey);
-      if (!raw) return { ...DEFAULT_SETTINGS };
-      const parsed = JSON.parse(raw);
+      let parsed = {};
+      if (raw) {
+        parsed = JSON.parse(raw);
+      }
+      const cookieWallpaper = this.getCookie("smartClock.wallpaper");
+      if (cookieWallpaper) {
+        parsed.wallpaperUrl = cookieWallpaper;
+      }
       return { ...DEFAULT_SETTINGS, ...parsed };
     } catch (e) {
       return { ...DEFAULT_SETTINGS };
@@ -41,6 +50,11 @@ class SettingsManager {
   save() {
     try {
       localStorage.setItem(this.storageKey, JSON.stringify(this.settings));
+      if (this.settings.wallpaperUrl) {
+        this.setCookie("smartClock.wallpaper", this.settings.wallpaperUrl);
+      } else {
+        this.deleteCookie("smartClock.wallpaper");
+      }
       this.notify();
     } catch (e) {}
   }
@@ -61,6 +75,7 @@ class SettingsManager {
 
   reset() {
     this.settings = { ...DEFAULT_SETTINGS };
+    this.deleteCookie("smartClock.wallpaper");
     this.save();
   }
 
@@ -70,6 +85,32 @@ class SettingsManager {
 
   notify() {
     this.listeners.forEach((fn) => fn(this.settings));
+  }
+
+  setCookie(name, value, days = 365) {
+    try {
+      const d = new Date();
+      d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000);
+      document.cookie = `${name}=${encodeURIComponent(value)};expires=${d.toUTCString()};path=/;SameSite=Strict`;
+    } catch (e) {}
+  }
+
+  getCookie(name) {
+    try {
+      const nameEQ = name + "=";
+      const ca = document.cookie.split(";");
+      for (let i = 0; i < ca.length; i++) {
+        let c = ca[i].trim();
+        if (c.indexOf(nameEQ) === 0) return decodeURIComponent(c.substring(nameEQ.length, c.length));
+      }
+    } catch (e) {}
+    return null;
+  }
+
+  deleteCookie(name) {
+    try {
+      document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;SameSite=Strict`;
+    } catch (e) {}
   }
 }
 

@@ -57,6 +57,15 @@ class DeviceService {
       } catch (e) {}
     }
   }
+
+  static getBatteryIcon(level, isCharging) {
+    if (isCharging) return '<i class="fa-solid fa-bolt text-yellow-400"></i>';
+    if (level === null) return '<i class="fa-solid fa-battery-full text-zinc-300"></i>';
+    if (level > 75) return '<i class="fa-solid fa-battery-full text-emerald-400"></i>';
+    if (level > 40) return '<i class="fa-solid fa-battery-three-quarters text-emerald-300"></i>';
+    if (level > 20) return '<i class="fa-solid fa-battery-half text-amber-400"></i>';
+    return '<i class="fa-solid fa-battery-quarter text-red-500"></i>';
+  }
 }
 
 window.DeviceService = DeviceService;
