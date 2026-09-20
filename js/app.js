@@ -11,6 +11,7 @@ const TRANSLATIONS = {
     digitalStyle: "Digital Style",
     analogStyle: "Analog Style",
     fontSize: "Digital Font Size",
+    fontFamily: "Font Family",
     colorTheme: "Color Theme",
     accentColor: "Accent Color",
     language: "Language",
@@ -47,6 +48,7 @@ const TRANSLATIONS = {
     digitalStyle: "រចនាប័ទ្មឌីជីថល",
     analogStyle: "រចនាប័ទ្មទ្រនិច",
     fontSize: "ទំហំអក្សរឌីជីថល",
+    fontFamily: "ពុម្ពអក្សរ",
     colorTheme: "ពណ៌ប្រធានបទ",
     accentColor: "ពណ៌លេចធ្លោ",
     language: "ភាសា",
@@ -234,6 +236,7 @@ class SmartClockApp {
     bindCheck("settingShowSeconds", "showSeconds");
     bindCheck("settingShowDate", "showDate");
     bindSelect("settingDigitalStyle", "digitalStyle");
+    bindSelect("settingFontFamily", "fontFamily");
     bindSelect("settingAnalogStyle", "analogStyle");
     bindSelect("settingTheme", "theme");
     bindSelect("settingAccent", "accent");
@@ -289,6 +292,7 @@ class SmartClockApp {
     setChecked("settingShowSeconds", s.get("showSeconds"));
     setChecked("settingShowDate", s.get("showDate"));
     setVal("settingDigitalStyle", s.get("digitalStyle"));
+    setVal("settingFontFamily", s.get("fontFamily") || "system");
     setVal("settingAnalogStyle", s.get("analogStyle"));
     setVal("settingTheme", s.get("theme"));
     setVal("settingAccent", s.get("accent"));
@@ -392,6 +396,7 @@ class SmartClockApp {
     document.body.dataset.theme = s.get("theme");
     document.body.dataset.accent = s.get("accent");
     document.body.dataset.colorScheme = s.get("colorScheme") || "dark";
+    document.body.dataset.font = s.get("fontFamily") || "system";
 
     const fontSize = s.get("digitalFontSize") || 100;
     document.documentElement.style.setProperty("--digital-font-scale", fontSize / 100);

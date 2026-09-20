@@ -124,6 +124,14 @@ html, body {
   transition: color 0.3s ease;
 }
 
+[data-font="system"] #digitalClockContainer, [data-font="system"] .time-display-huge, [data-font="system"] .time-display-medium { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif; }
+[data-font="orbitron"] #digitalClockContainer, [data-font="orbitron"] .time-display-huge, [data-font="orbitron"] .time-display-medium { font-family: 'Orbitron', sans-serif !important; }
+[data-font="share-tech"] #digitalClockContainer, [data-font="share-tech"] .time-display-huge, [data-font="share-tech"] .time-display-medium { font-family: 'Share Tech Mono', monospace !important; }
+[data-font="vt323"] #digitalClockContainer, [data-font="vt323"] .time-display-huge, [data-font="vt323"] .time-display-medium { font-family: 'VT323', monospace !important; }
+[data-font="inter"] #digitalClockContainer, [data-font="inter"] .time-display-huge, [data-font="inter"] .time-display-medium { font-family: 'Inter', sans-serif !important; }
+[data-font="kantumruy"] #digitalClockContainer, [data-font="kantumruy"] .time-display-huge, [data-font="kantumruy"] .time-display-medium { font-family: 'Kantumruy Pro', sans-serif !important; }
+[data-font="monospace"] #digitalClockContainer, [data-font="monospace"] .time-display-huge, [data-font="monospace"] .time-display-medium { font-family: 'Courier New', monospace !important; }
+
 .tabular-nums {
   font-variant-numeric: tabular-nums;
 }
@@ -246,6 +254,21 @@ body.is-portrait .portrait-warning {
 
 body.is-portrait .app-container {
   display: none !important;
+}
+
+body.is-fullscreen-mode .app-container {
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
+}
+
+body.is-fullscreen-mode header {
+  opacity: 0;
+  pointer-events: none;
+}
+
+body.is-fullscreen-mode #digitalClockContainer {
+  transform: scale(1.12);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 body.ios-fullscreen .app-container {

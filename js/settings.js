@@ -17,6 +17,7 @@ const DEFAULT_SETTINGS = {
   wallpaperUrl: "",
   digitalStyle: "modern",
   digitalFontSize: 100,
+  fontFamily: "system",
   analogStyle: "minimal",
   nightMode: "off",
   ambientMode: false,

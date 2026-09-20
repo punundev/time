@@ -11,7 +11,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;600;800&family=Kantumruy+Pro:wght@400;600;700&family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="css/styles.css">
@@ -27,6 +27,11 @@
     <h2 id="i18nRotateTitle" class="text-xl font-bold text-white mb-2" data-i18n="rotateTitle">Rotate Your Device</h2>
     <p id="i18nRotateDesc" class="text-sm text-gray-400 mb-6" data-i18n="rotateDesc">Smart Clock is optimized for landscape orientation.</p>
     <button id="dismissWarningBtn" class="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-lg text-xs font-semibold transition" data-i18n="continuePortrait">Continue in Portrait Anyway</button>
+  </div>
+
+  <div id="fullscreenToast" class="fixed top-4 left-1/2 -translate-x-1/2 z-50 hidden glass-panel px-4 py-2 rounded-full text-xs text-zinc-200 shadow-xl border border-zinc-700 items-center gap-2 pointer-events-none transition-all duration-300">
+    <i class="fa-solid fa-arrow-up-from-bracket text-blue-400"></i>
+    <span>On iPhone: Tap Share <i class="fa-solid fa-arrow-up-from-bracket text-xs"></i> &rarr; <b>"Add to Home Screen"</b> for full screen.</span>
   </div>
 
   <main id="appContainer" class="app-container relative">
@@ -196,13 +201,15 @@
             </div>
             <div class="grid grid-cols-2 gap-3">
               <div>
-                <label class="block mb-1 text-zinc-400" data-i18n="digitalStyle">Digital Style</label>
-                <select id="settingDigitalStyle" class="w-full bg-zinc-900 border border-zinc-700 rounded-lg p-2 text-white">
-                  <option value="modern">Modern</option>
-                  <option value="minimal">Minimal</option>
-                  <option value="thin">Thin</option>
-                  <option value="bold">Bold</option>
-                  <option value="matrix">Matrix Tech</option>
+                <label class="block mb-1 text-zinc-400" data-i18n="fontFamily">Font Family</label>
+                <select id="settingFontFamily" class="w-full bg-zinc-900 border border-zinc-700 rounded-lg p-2 text-white">
+                  <option value="system">System Default (SF Pro)</option>
+                  <option value="orbitron">Orbitron (Sci-Fi LED)</option>
+                  <option value="share-tech">Share Tech Mono (Matrix)</option>
+                  <option value="vt323">VT323 (Retro Digital)</option>
+                  <option value="inter">Inter (Clean Sans)</option>
+                  <option value="kantumruy">Kantumruy Pro (Khmer)</option>
+                  <option value="monospace">Courier Monospace</option>
                 </select>
               </div>
               <div>

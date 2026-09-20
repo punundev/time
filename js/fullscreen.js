@@ -1,29 +1,30 @@
 class FullscreenManager {
   constructor() {
     this.element = document.documentElement;
+    this.toastTimeout = null;
+
+    document.addEventListener("fullscreenchange", () => this.onFullscreenChange());
+    document.addEventListener("webkitfullscreenchange", () => this.onFullscreenChange());
   }
 
-  isSupported() {
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-    if (isIOS) return false;
-    return !!(
-      document.fullscreenEnabled ||
-      document.webkitFullscreenEnabled ||
-      document.mozFullScreenEnabled ||
-      document.msFullscreenEnabled
-    );
+  isIOS() {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
   }
 
   isFullscreen() {
-    if (document.body.classList.contains("ios-fullscreen")) {
-      return true;
-    }
-    return !!(
-      document.fullscreenElement ||
-      document.webkitFullscreenElement ||
-      document.mozFullScreenElement ||
-      document.msFullscreenElement
+    return (
+      document.body.classList.contains("is-fullscreen-mode") ||
+      !!document.fullscreenElement ||
+      !!document.webkitFullscreenElement
     );
+  }
+
+  onFullscreenChange() {
+    if (this.isFullscreen()) {
+      document.body.classList.add("is-fullscreen-mode");
+    } else {
+      document.body.classList.remove("is-fullscreen-mode");
+    }
   }
 
   toggle() {
@@ -35,39 +36,49 @@ class FullscreenManager {
   }
 
   request() {
-    if (!this.isSupported()) {
-      document.body.classList.add("ios-fullscreen");
-      window.scrollTo(0, 1);
-      return;
-    }
+    document.body.classList.add("is-fullscreen-mode");
+    window.scrollTo(0, 1);
+
     const req =
       this.element.requestFullscreen ||
       this.element.webkitRequestFullscreen ||
       this.element.mozRequestFullScreen ||
       this.element.msRequestFullscreen;
 
-    if (req) {
+    if (req && !this.isIOS()) {
       req.call(this.element).catch(() => {
-        document.body.classList.add("ios-fullscreen");
-        window.scrollTo(0, 1);
+        this.showIOSToast();
       });
+    } else if (this.isIOS()) {
+      this.showIOSToast();
     }
   }
 
   exit() {
-    if (document.body.classList.contains("ios-fullscreen")) {
-      document.body.classList.remove("ios-fullscreen");
-    }
-    if (!this.isSupported()) return;
+    document.body.classList.remove("is-fullscreen-mode");
+
     const exit =
       document.exitFullscreen ||
       document.webkitExitFullscreen ||
       document.mozCancelFullScreen ||
       document.msExitFullscreen;
 
-    if (exit) {
+    if (exit && (document.fullscreenElement || document.webkitFullscreenElement)) {
       exit.call(document).catch(() => {});
     }
+  }
+
+  showIOSToast() {
+    const toast = document.getElementById("fullscreenToast");
+    if (!toast) return;
+    toast.classList.remove("hidden");
+    toast.classList.add("flex");
+
+    clearTimeout(this.toastTimeout);
+    this.toastTimeout = setTimeout(() => {
+      toast.classList.add("hidden");
+      toast.classList.remove("flex");
+    }, 4500);
   }
 }
 
